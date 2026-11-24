@@ -1,0 +1,42 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+*.sln.iml
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+
+# Test results
+TestResults/
+coverage/
+*.trx
+
+# Runtime files
+*.log
+
+# Publish output
+publish/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local environment files
+.env
+.env.*
+!.env.example
