@@ -1,5 +1,6 @@
 ﻿using Gurrea.Services;
 
+
 namespace Gurrea.Menus
 {
     internal class ReportMenu

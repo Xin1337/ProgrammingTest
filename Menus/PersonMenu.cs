@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using Gurrea.Models;
 using Gurrea.Services;
 
@@ -12,9 +8,12 @@ namespace Gurrea.Menus
     {
         private readonly PersonService personService;
 
+        private readonly ReportMenu reportMenu;
+
         public PersonMenu(PersonService personService)
         {
             this.personService = personService;
+            reportMenu = new ReportMenu(personService);
         }
 
         public void Run()
@@ -55,7 +54,7 @@ namespace Gurrea.Menus
                         DeletePerson();
                         break;
                     case "6":
-                        GenerateReport();
+                        reportMenu.Run();
                         break;
                     case "7":
                         isRunning = false;
@@ -212,24 +211,6 @@ namespace Gurrea.Menus
             else
             {
                 Console.WriteLine("Delete cancelled.");
-            }
-
-            Pause();
-        }
-
-        private void GenerateReport()
-        {
-            Console.Clear();
-            Console.WriteLine("Person Report");
-            Console.WriteLine("=============");
-            Console.WriteLine("ID\tName\t\tBirthday\t\tAge\tAddresses");
-
-            List<Person> people = personService.GetAllPeople();
-
-            foreach (Person person in people)
-            {
-                Console.WriteLine(
-                    $"{person.Id}\t{person.FullName}\t{person.Birthday:yyyy-MM-dd}\t{PersonService.CalculateAge(person.Birthday)}\t{string.Join(", ", person.Addresses.Select(a => a.Description))}");
             }
 
             Pause();
