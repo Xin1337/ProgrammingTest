@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using Gurrea.Interfaces;
 using Gurrea.Models;
 using Gurrea.Services;
 
@@ -8,7 +10,17 @@ namespace Gurrea
     internal class Program
     {
         private static readonly PersonService personService = new PersonService();
+        private static readonly AuthenticationService authenticationService = new AuthenticationService();
         private static void Main(string[] args)
+        {
+            if (!Login())
+            {
+                return;
+            }
+            RunMainMenu();
+        }
+
+        private static void RunMainMenu()
         {
             bool isRunning = true;
 
@@ -380,6 +392,52 @@ namespace Gurrea
             }
 
             return addresses;
+        }
+
+        private static bool Login()
+        {
+            const int maxAttempts = 3;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                Console.Clear();
+                Console.WriteLine("Login");
+                Console.WriteLine("================================");
+                Console.Write("Username: ");
+                string username = Console.ReadLine() ?? string.Empty;
+                Console.Write("Password: ");
+                string password = ReadPassword();
+                if (authenticationService.Login(username, password))
+                {
+                    return true;
+                }
+                Console.WriteLine($"Invalid credentials. Attempt {attempt} of {maxAttempts}.");
+                Pause();
+            }
+            Console.WriteLine("Too many failed login attempts. Exiting application.");
+            return false;
+        }
+
+        private static string ReadPassword()
+        {
+            string password = string.Empty;
+            ConsoleKeyInfo keyInfo;
+            do
+            {
+                keyInfo = Console.ReadKey(intercept: true);
+                if (keyInfo.Key == ConsoleKey.Backspace && password.Length > 0)
+                {
+                    password = password[0..^1];
+                    Console.Write("\b \b");
+                }
+                else if (!char.IsControl(keyInfo.KeyChar))
+                {
+                    password += keyInfo.KeyChar;
+                    Console.Write("*");
+                }
+            } while (keyInfo.Key != ConsoleKey.Enter);
+            Console.WriteLine();
+            return password;
         }
     }
 }
