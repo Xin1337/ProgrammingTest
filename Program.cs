@@ -8,10 +8,10 @@ namespace Gurrea
     {
         private static void Main(string[] args)
         {
-            AuthenticationService authenticationService = new AuthenticationService();
+            AuthenticationService authenticationService = new AuthenticationService(); // Create an instance of the AuthenticationService
             LoginMenu loginMenu = new LoginMenu(authenticationService);
 
-            if (!loginMenu.Run())
+            if (!loginMenu.Run()) // If login fails, exit the program
             {
                 return;
             }

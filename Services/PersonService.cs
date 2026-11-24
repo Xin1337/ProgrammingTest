@@ -92,8 +92,8 @@ namespace Gurrea.Services
 
         public static int CalculateAge(DateOnly birthday)
         {
-            DateOnly today = DateOnly.FromDateTime(DateTime.Today);
-            int age = today.Year - birthday.Year;
+            DateOnly today = DateOnly.FromDateTime(DateTime.Today); // Get today's date as a DateOnly object
+            int age = today.Year - birthday.Year; // Calculate the initial age based on the year difference
             if (birthday > today.AddYears(-age))
             {
                 age--;
