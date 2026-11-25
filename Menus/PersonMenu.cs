@@ -167,10 +167,20 @@ namespace Gurrea.Menus
             string middleName = ReadOptionalText("Middle Name", person.MiddleName);
             string lastName = ReadOptionalText("Last Name", person.LastName);
             DateOnly birthday = ReadOptionalBirthday(person.Birthday);
-            List<string> addresses = ReadOptionalAddresses(person.Addresses);
+            List<string> addresses = new List<string>();
+
+            foreach (Address address in person.Addresses)
+            {
+                addresses.Add(address.Description);
+            }
 
             bool updated = personService.UpdatePerson(
                 id, firstName, middleName, lastName, birthday, addresses);
+
+            if (updated)
+            {
+                ManageAddresses(person);
+            }
 
             Console.WriteLine(updated
                 ? "Person updated successfully."
@@ -226,7 +236,7 @@ namespace Gurrea.Menus
 
             foreach (Address address in person.Addresses)
             {
-                Console.WriteLine($"- {address.Description}");
+                Console.WriteLine($"- ID: {address.Id}, {address.Description}");
             }
         }
 
@@ -302,46 +312,92 @@ namespace Gurrea.Menus
             }
         }
 
-        private static List<string> ReadOptionalAddresses(List<Address> currentAddresses)
+        private void ManageAddresses(Person person)
         {
-            Console.WriteLine("Press Enter immediately to retain current addresses.");
-            Console.Write("New address: ");
-            string firstAddress = Console.ReadLine() ?? string.Empty;
+            bool isManaging = true;
 
-            if (string.IsNullOrWhiteSpace(firstAddress))
+            while (isManaging)
             {
-                List<string> existingAddresses = new List<string>();
+                Console.WriteLine();
+                Console.WriteLine("Address Management");
+                Console.WriteLine("==================");
 
-                foreach (Address address in currentAddresses)
+                if (person.Addresses.Count == 0)
                 {
-                    existingAddresses.Add(address.Description);
+                    Console.WriteLine("No addresses.");
+                }
+                else
+                {
+                    foreach (Address address in person.Addresses)
+                    {
+                        Console.WriteLine(
+                            $"ID: {address.Id} - {address.Description}");
+                    }
                 }
 
-                return existingAddresses;
+                Console.WriteLine("1. Add address");
+                Console.WriteLine("2. Delete address");
+                Console.WriteLine("3. Finish");
+                Console.Write("Select an option: ");
+
+                string choice = Console.ReadLine() ?? string.Empty;
+
+                switch (choice)
+                {
+                    case "1":
+                        Console.Write("New address: ");
+                        string description = Console.ReadLine() ?? string.Empty;
+
+                        if (personService.AddAddress(person.Id, description))
+                        {
+                            Console.WriteLine("Address added successfully.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Address cannot be empty.");
+                        }
+
+                        break;
+
+                    case "2":
+                        DeleteAddress(person);
+                        break;
+
+                    case "3":
+                        isManaging = false;
+                        break;
+
+                    default:
+                        Console.WriteLine("Invalid option.");
+                        break;
+                }
+            }
+        }
+
+        private void DeleteAddress(Person person)
+        {
+            if (person.Addresses.Count == 0)
+            {
+                Console.WriteLine("There are no addresses to delete.");
+                return;
             }
 
-            List<string> addresses = new List<string> { firstAddress };
+            Console.Write("Enter the address ID to delete: ");
 
-            while (true)
+            if (!int.TryParse(Console.ReadLine(), out int addressId))
             {
-                Console.Write("Add another address? (Y/N): ");
-                string answer = Console.ReadLine() ?? string.Empty;
-
-                if (!answer.Equals("Y", StringComparison.OrdinalIgnoreCase))
-                {
-                    break;
-                }
-
-                Console.Write("Address: ");
-                string address = Console.ReadLine() ?? string.Empty;
-
-                if (!string.IsNullOrWhiteSpace(address))
-                {
-                    addresses.Add(address);
-                }
+                Console.WriteLine("Invalid address ID.");
+                return;
             }
 
-            return addresses;
+            if (personService.DeleteAddress(person.Id, addressId))
+            {
+                Console.WriteLine("Address deleted successfully.");
+            }
+            else
+            {
+                Console.WriteLine("Address not found.");
+            }
         }
 
         private static void Pause()
